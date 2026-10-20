@@ -123,6 +123,19 @@ public final class MetadataServer implements AutoCloseable {
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
             reply(exchange, 200, json);
         });
+        server.createContext("/metrics/prometheus", exchange -> {
+            if (!exchange.getRequestMethod().equals("GET")) {
+                exchange.getResponseHeaders().set("Allow", "GET");
+                reply(exchange, 405, "Method not allowed");
+                return;
+            }
+            String payload = PrometheusMetrics.render(storage.metrics(), storage.batches(),
+                    storage.size(), role, replicationHealthy);
+            exchange.getResponseHeaders().set("Content-Type", "text/plain; version=0.0.4; charset=utf-8");
+            byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (OutputStream out = exchange.getResponseBody()) { out.write(bytes); }
+        });
         server.createContext("/metadata", this::metadata);
     }
     public void start() { server.start(); }
