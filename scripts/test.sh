@@ -9,7 +9,8 @@ for test in \
   com.s3index.metadata.MetadataTest \
   com.s3index.metadata.ReplicationTest \
   com.s3index.metadata.ReconciliationTest \
-  com.s3index.metadata.PrometheusMetricsTest; do
+  com.s3index.metadata.PrometheusMetricsTest \
+  com.s3index.metadata.LeaderRestartFaultInjectionTest; do
   echo "==> $test"
   java -cp "$classpath" "$test"
 done
